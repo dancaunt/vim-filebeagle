@@ -637,12 +637,14 @@ function! s:NewDirectoryViewer()
 
     " Sets buffer status line.
     function! directory_viewer.setup_buffer_statusline() dict
+        let self.old_laststatus=&l:laststatus
+	set laststatus=2
         if has("statusline")
-            let self.old_statusline=&l:statusline
-            let &l:statusline = g:filebeagle_statusline
+	    let self.oldstatusline=&l:statusline
         else
             let self.old_statusline=""
         endif
+	let &l:statusline = g:filebeagle_statusline
     endfunction
 
     " Populates the buffer with the catalog index.
@@ -690,12 +692,11 @@ function! s:NewDirectoryViewer()
             execute "bwipe! " . self.buf_num
         catch // " E517: No buffers were wiped out
         endtry
-        if has("statusline") && exists("self['old_statusline']")
-            try
-                let &l:statusline=self.old_statusline
-            catch //
-            endtry
-        endif
+        try
+	    let &l:laststatus=self.old_laststatus
+            let &l:statusline=self.old_statusline
+        catch //
+        endtry
         if has("title")
             let &titlestring = self.old_titlestring
         endif
